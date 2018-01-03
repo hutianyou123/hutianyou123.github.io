@@ -50,7 +50,7 @@
         
           <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -60,6 +60,69 @@
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-git-ssh-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/01/03/git-ssh-1/" class="article-date">
+  <time datetime="2018-01-03T06:02:39.000Z" itemprop="datePublished">2018-01-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/03/git-ssh-1/">git-ssh</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>很多情况下，大家都会遇到一个问题，自己电脑上配置的SSH Key可以与自己的gitbub账号匹配，却不能匹配公司内部的git服务器账号，即gitlab。下面我将讲述这两种账号的配置过程：<br><strong>1. github账号SSH Key配置</strong><br>(1) 设置git的名字和邮箱，这点很重要，尤其是对于gitlab的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;你的用户名&quot;</span><br><span class="line">git config --global user.email &quot;你的邮箱&quot;</span><br></pre></td></tr></table></figure></p>
+<p>(2) 初始化git</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure>
+<p>(3) 生成SSH Key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C &quot;你的github账号对应的邮箱&quot;</span><br></pre></td></tr></table></figure>
+<p>可以看到结果如下，选择默认，passphrase可以根据自己的需要设置。<br><img src="http://img.blog.csdn.net/20170809165527708?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaHV0aWFueW91MTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>输入cat id_rsa.pub获取公钥：<br><img src="http://img.blog.csdn.net/20170809165730004?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaHV0aWFueW91MTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>(4)将公钥加入到github中，选择setting-&gt;SSH KEY添加即可。如下图：<br><img src="http://img.blog.csdn.net/20170809170015478?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaHV0aWFueW91MTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>记住，这里的pub文件叫做id_rsa.pub</p>
+<p><strong>2. 配置gitlab SSH Key</strong><br>方法和上面类似，只是生成的Key需要这样输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C &quot;GitLib&quot; -b 4096</span><br></pre></td></tr></table></figure>
+<p>这里取名为hty.pub。</p>
+<p><strong>3. 配置两种不同的SSH key</strong><br>首先需要将密钥添加到SSH agent中，因为默认只读取id_rsa，为了让SSH识别新的私钥，需将其添加到SSH agent中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-add ~/.ssh/hty</span><br></pre></td></tr></table></figure>
+<p>如果出现Could not open a connection to your authentication agent的错误，就试着用以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-agent bash</span><br><span class="line">ssh-add ~/.ssh/hty</span><br></pre></td></tr></table></figure>
+<p>找到.ssh的默认目录，一般在C:\Users\Administrator目录下，将git bash的工作目录切换到该目录，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd C:\Users\Administrator\.ssh</span><br></pre></td></tr></table></figure>
+<p>输入touch config, 创建config文件，内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Host github.com  </span><br><span class="line">    HostName github.com  </span><br><span class="line">    PreferredAuthentications publickey  </span><br><span class="line">    IdentityFile ~/.ssh/id_rsa  </span><br><span class="line">  </span><br><span class="line">Host gitlab  </span><br><span class="line">    HostName gitlab </span><br><span class="line">    PreferredAuthentications publickey  </span><br><span class="line">    IdentityFile ~/.ssh/hty</span><br></pre></td></tr></table></figure>
+<p><strong>4. 验证是否正确</strong><br>(1) 针对github，输入指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
+<p><img src="http://img.blog.csdn.net/20170809171253164?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaHV0aWFueW91MTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>(2) 针对gitlab, 输入指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@gitlab</span><br></pre></td></tr></table></figure>
+<p><img src="http://img.blog.csdn.net/20170809171457248?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaHV0aWFueW91MTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>以上结果，表示配置成功。如果失败，请仔细阅读上述步骤，或者给我留言，谢谢！<br>附上git的安装地址：<a href="https://git-scm.com/" target="_blank" rel="noopener">https://git-scm.com/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/01/03/git-ssh-1/" data-id="cjbynq34t0002asl3mxxs4s8c" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-git12123131" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -87,7 +150,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/03/git12123131/" data-id="cjbyjhvrg0003qkl387ih5xxn" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/01/03/git12123131/" data-id="cjbynq34x0004asl3c7y8a4r5" class="article-share-link">Share</a>
       
       
     </footer>
@@ -124,7 +187,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/03/git/" data-id="cjbyjhvra0001qkl3bvj5n7cc" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/01/03/git/" data-id="cjbynq34v0003asl33yyimegw" class="article-share-link">Share</a>
       
       
     </footer>
@@ -177,7 +240,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/03/git-ssh/" data-id="cjbyjhvr30000qkl3jfpvd065" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/01/03/git-ssh/" data-id="cjbynq34q0001asl3j3dmn206" class="article-share-link">Share</a>
       
       
     </footer>
@@ -213,7 +276,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/03/My-New-Post/" data-id="cjbyjhvri0004qkl3m4gdi37r" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/01/03/My-New-Post/" data-id="cjbynq34j0000asl3bm4c720n" class="article-share-link">Share</a>
       
       
     </footer>
@@ -258,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/02/hello-world/" data-id="cjbyjhvre0002qkl37u2d1v0b" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2018/01/02/hello-world/" data-id="cjbynq34z0005asl3b7m95ae6" class="article-share-link">Share</a>
       
       
     </footer>
@@ -284,7 +347,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archiv</h3>
+    <h3 class="widget-title">Archives</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li></ul>
     </div>
@@ -294,9 +357,13 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">letzter Beitrag</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2018/01/03/git-ssh-1/">git-ssh</a>
+          </li>
         
           <li>
             <a href="/2018/01/03/git12123131/">git12123131</a>
@@ -312,10 +379,6 @@
         
           <li>
             <a href="/2018/01/03/My-New-Post/">My New Post</a>
-          </li>
-        
-          <li>
-            <a href="/2018/01/02/hello-world/">Hello World</a>
           </li>
         
       </ul>
